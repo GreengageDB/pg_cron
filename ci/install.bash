@@ -9,9 +9,9 @@ make_cluster
 source /usr/local/greengage-db-devel/greengage_path.sh
 source /home/gpadmin/gpdb_src/gpAux/gpdemo/gpdemo-env.sh
 
-pushd "$(dirname "$0")/.."
-  make USE_PGXS=1
-  make USE_PGXS=1 install
+pushd "/home/gpadmin/gpdb_src/gpcontrib/pg_cron"
+  make
+  make install
   chown -R gpadmin:gpadmin . /usr/local/greengage-db-devel
 popd
 

@@ -7,7 +7,9 @@ source /home/gpadmin/gpdb_src/gpAux/gpdemo/gpdemo-env.sh
 
 errors=0
 
-make USE_PGXS=1 installcheck || errors=$(( errors + $? ))
+pushd "/home/gpadmin/gpdb_src/gpcontrib/pg_cron"
+  make installcheck || errors=$(( errors + $? ))
+popd
 
 tar --dereference -czf "/logs/result.tar.gz" results
 cp regression.diffs /logs/regression.diffs || true

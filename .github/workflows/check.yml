@@ -25,8 +25,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-        with:
-          path: /home/gpadmin/gpdb_src/gpcontrib/pg_cron
       - name: Build and install
         shell: bash
         run: bash $GITHUB_WORKSPACE/ci/install.bash

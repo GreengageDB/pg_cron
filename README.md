@@ -291,17 +291,10 @@ VALUES (
 
 # Installing pg_cron
 
-You can build and install pg_cron by in-tree build flow from utmost top directory of Greengage (also refer to Greenage's README):
+You can install pg_cron by building it from source:
 ```bash
-./configure --with-libxml
 make -j8
 make -j8 install
-```
-
-Else, you can rebuild and install directly from `gpcontrib/pg_cron` (provided `./configure` was already issued before):
-```bash
-make
-sudo make install
 ```
 
 # Setting up pg_cron

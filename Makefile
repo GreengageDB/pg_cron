@@ -5,8 +5,8 @@ EXTENSION = pg_cron
 DATA_built = $(EXTENSION)--1.0.sql
 DATA = $(wildcard $(EXTENSION)--*--*.sql)
 
-REGRESS = setup pg_cron-test teardown
 REGRESS_OPTS = --init-file=$(top_builddir)/src/test/regress/init_file
+REGRESS = setup pg_cron-test teardown
 
 # compilation configuration
 MODULE_big = $(EXTENSION)

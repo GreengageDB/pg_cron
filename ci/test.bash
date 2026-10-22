@@ -15,8 +15,6 @@ make installcheck REGRESS_OPTS="--init-file=/home/gpadmin/gpdb_src/src/test/regr
 cp -r results/ /logs/
 cp regression.diffs /logs/ || true
 
-ls -la /logs
-
 if (( result != 0 )); then
   echo "'make installcheck' unsuccessfully completed."
   cat regression.diffs || true

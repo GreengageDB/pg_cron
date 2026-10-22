@@ -30,19 +30,11 @@ jobs:
       - name: Tests
         run: su gpadmin -c 'ci/test.bash'
       - name: Collect logs
-        if: always()
-        shell: bash
-        run: |
-          params=(
-            "./ d gpAdminLogs"
-            "gpdb_src/gpAux/gpdemo/datadirs/ d log"
-            "gpdb_src/gpAux/gpdemo/datadirs/ d pg_log"
-          )
-          for param in "${params[@]}"; do
-            read -r path type name <<< "$param"
-            find $path -name $name -type $type -exec tar -rf "/logs/$name.tar" {} \;
-          done
-        working-directory: /home/gpadmin
+        uses: greengagedb/greengage-ci/.github/actions/collect-logs@v55
+        with:
+          params: |
+            gpAdminLogs d gpAdminLogs
+            gpdb_src/gpAux/gpdemo/datadirs d *log
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
         if: always()

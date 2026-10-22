@@ -4,7 +4,6 @@ on:
   pull_request:
     paths-ignore:
       - "*.md"
-      - "ChangeLog"
 
 # Concurrency control to cancel previous runs on new push to same PR/branch
 concurrency:

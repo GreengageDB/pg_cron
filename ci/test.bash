@@ -7,10 +7,12 @@ source /home/gpadmin/gpdb_src/gpAux/gpdemo/gpdemo-env.sh
 
 errors=0
 
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR/.."
+
 make installcheck REGRESS_OPTS="--init-file=/home/gpadmin/gpdb_src/src/test/regress/init_file" || errors=$(( errors + $? ))
 
-tar --dereference -czf "/logs/result.tar.gz" results
-cp regression.diffs /logs/regression.diffs || true
+cp results regression.diffs /logs/ || true
 
 if (( errors > 0 )); then
   cat regression.diffs || true

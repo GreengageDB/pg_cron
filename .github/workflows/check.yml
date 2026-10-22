@@ -40,4 +40,4 @@ jobs:
         if: always()
         with:
           name: pg_cron_${{ matrix.image }}_logs
-          path: /logs/*
+          path: /logs

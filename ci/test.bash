@@ -5,17 +5,21 @@ set -xeuo pipefail
 source /usr/local/greengage-db-devel/greengage_path.sh
 source /home/gpadmin/gpdb_src/gpAux/gpdemo/gpdemo-env.sh
 
-errors=0
+result=0
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR/.."
 
-make installcheck REGRESS_OPTS="--init-file=/home/gpadmin/gpdb_src/src/test/regress/init_file" || errors=$(( errors + $? ))
+make installcheck REGRESS_OPTS="--init-file=/home/gpadmin/gpdb_src/src/test/regress/init_file" || result=$?
 
-cp results regression.diffs /logs/ || true
+cp -r results/ /logs/
+cp regression.diffs /logs/ || true
 
-if (( errors > 0 )); then
+ls -la /logs
+
+if (( result != 0 )); then
+  echo "'make installcheck' unsuccessfully completed."
   cat regression.diffs || true
-  exit 1
 fi
-exit 0
+
+exit $result

@@ -33,6 +33,10 @@ jobs:
             $GGDB_IMAGE \
             bash -c "pg_cron/ci/install.bash && su gpadmin -c 'pg_cron/ci/test.bash'"
 
+      - name: Restore workspace ownership
+        if: always()
+        run: sudo chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE"
+
       - name: Collect logs
         if: always()
         uses: greengagedb/greengage-ci/.github/actions/collect-logs@v55

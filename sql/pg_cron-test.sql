@@ -2,7 +2,6 @@
 -- m/ \([a-zA-Z0-9_]+\.c:\d+\)/
 -- s/ \([a-zA-Z0-9_]+\.c:\d+\)//
 -- end_matchsubs
--- Test cache invalidation
 CREATE EXTENSION pg_cron;
 
 -- Vacuum every day at 10:00am (GMT)

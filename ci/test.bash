@@ -10,7 +10,7 @@ result=0
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR/.."
 
-make installcheck REGRESS_OPTS="--init-file=/home/gpadmin/gpdb_src/src/test/regress/init_file" || result=$?
+make installcheck || result=$?
 
 cp -r results/ /logs/
 cp regression.diffs /logs/ || true

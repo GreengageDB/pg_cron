@@ -7,12 +7,11 @@ gpdb_src/concourse/scripts/setup_gpadmin_user.bash
 make_cluster
 
 source /usr/local/greengage-db-devel/greengage_path.sh
-source /home/gpadmin/gpdb_src/gpAux/gpdemo/gpdemo-env.sh
+source gpdb_src/gpAux/gpdemo/gpdemo-env.sh
 
 pushd "$(dirname "$0")/.."
   make
   make install
-  chown -R gpadmin:gpadmin . /usr/local/greengage-db-devel
 popd
 
 mkdir -p /logs

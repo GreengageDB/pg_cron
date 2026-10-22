@@ -275,6 +275,8 @@ Cron jobs can also be managed by using `INSERT`, `UPDATE`, `DELETE` and etc on `
 
 > Directly modifying `cron.job` table, instead of using the functions, bypasses the security checks performed by the extension's job-management functions. Write access to `cron.job` must therefore be reserved for trusted roles, and is equivalent to the privileges of any role the scheduler can authenticate as (including superuser).
 
+> Take into consideration that manual usage of `TRUNCATE` upon `cron.job` does not perform cache reload by a trigger (`TRUNCATE` is unsupported in triggers) - it does it by another mechanism.
+
 ```sql
 INSERT INTO cron.job (schedule, command, nodename, nodeport, database, username, active, jobname)
 VALUES (

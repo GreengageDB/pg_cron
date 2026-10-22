@@ -2313,7 +2313,7 @@ ExecuteSqlString(const char *sql)
 		portal = CreatePortal("", true, true);
 		/* Don't display the portal in pg_cursors */
 		portal->visible = false;
-#if 0
+#ifdef GP_VERSION_NUM
 		PortalDefineQuery(portal, NULL, sql, commandTag, plantree_list, NULL);
 		PortalStart(portal, NULL, 0, InvalidSnapshot);
 #else

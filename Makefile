@@ -5,7 +5,6 @@ EXTENSION = pg_cron
 DATA_built = $(EXTENSION)--1.0.sql
 DATA = $(wildcard $(EXTENSION)--*--*.sql)
 
-REGRESS_OPTS = --init-file=$(top_builddir)/src/test/regress/init_file
 REGRESS = setup pg_cron-test teardown
 
 # compilation configuration
@@ -22,7 +21,7 @@ endif
 SHLIB_LINK_INTERNAL = $(libpq)
 EXTRA_CLEAN += $(addprefix src/,*.gcno *.gcda) # clean up after profiling runs
 
-PG_CONFIG = pg_config
+PG_CONFIG ?= pg_config
 PGXS := $(shell $(PG_CONFIG) --pgxs)
 include $(PGXS)
 

@@ -7,7 +7,7 @@ source /home/gpadmin/gpdb_src/gpAux/gpdemo/gpdemo-env.sh
 
 errors=0
 
-make installcheck REGRESS_OPTS="--init-file=/home/gpadmin/gpdb_src/src/test/regress/init_file" || errors=$(( errors + $? ))
+make installcheck || errors=$(( errors + $? ))
 
 tar --dereference -czf "/logs/result.tar.gz" results
 cp regression.diffs /logs/regression.diffs || true

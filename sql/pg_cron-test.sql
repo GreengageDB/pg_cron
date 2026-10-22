@@ -229,17 +229,34 @@ VALUES (
 )
 RETURNING jobid \gset cache_
 
+CREATE FUNCTION public.pg_cron_wait_for_command(p_jobid bigint, p_command text) RETURNS text
+LANGUAGE plpgsql AS $$
+DECLARE
+    v_command text;
+BEGIN
+    FOR i IN 1..30 LOOP
+        SELECT command INTO v_command FROM cron.job_run_details
+            WHERE jobid = p_jobid AND command = p_command
+        ORDER BY runid DESC LIMIT 1;
+        IF v_command IS NOT NULL THEN
+            RETURN v_command;
+        END IF;
+        PERFORM pg_sleep(1);
+    END LOOP;
+    RETURN 'timeout';
+END $$;
+
 SELECT public.pg_cron_wait_for_job(:cache_jobid);
 SELECT count(*) > 0 FROM cron.job_run_details WHERE jobid = :cache_jobid;
 
 UPDATE cron.job SET command = 'SELECT 2' WHERE jobid = :cache_jobid;
-SELECT pg_sleep(2);
-SELECT DISTINCT command FROM cron.job_run_details WHERE jobid = :cache_jobid;
+SELECT public.pg_cron_wait_for_command(:cache_jobid, 'SELECT 2');
 
 SELECT cron.unschedule(:cache_jobid);
 DELETE FROM cron.job_run_details
     WHERE jobid OPERATOR(pg_catalog.=) :cache_jobid;
 DROP FUNCTION public.pg_cron_wait_for_job(bigint);
+DROP FUNCTION public.pg_cron_wait_for_command(bigint, text);
 
 -- cleaning
 DROP EXTENSION pg_cron;

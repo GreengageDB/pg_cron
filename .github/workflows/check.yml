@@ -27,12 +27,14 @@ jobs:
         run: |
           set -eux
           docker run \
+            --volume ./logs:/logs \
+            --volume ./:/home/gpadmin/pg_cron \
             --sysctl "kernel.sem=500 1024000 200 4096" \
-            --volume ${{ github.workspace }}:/src -w /home/gpadmin \
             $GGDB_IMAGE \
-            /src/ci/install.bash && su gpadmin -c '/src/ci/test.bash'
+            bash -c "pg_cron/ci/install.bash && su gpadmin -c 'pg_cron/ci/test.bash'"
 
       - name: Collect logs
+        if: always()
         uses: greengagedb/greengage-ci/.github/actions/collect-logs@v55
         with:
           params: |
@@ -40,8 +42,8 @@ jobs:
             gpdb_src/gpAux/gpdemo/datadirs d *log
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v7
         if: always()
+        uses: actions/upload-artifact@v7
         with:
           name: pg_cron_${{ matrix.image }}_logs
-          path: /logs
+          path: logs

@@ -255,8 +255,23 @@ SELECT public.pg_cron_wait_for_command(:cache_jobid, 'SELECT 2');
 SELECT cron.unschedule(:cache_jobid);
 DELETE FROM cron.job_run_details
     WHERE jobid OPERATOR(pg_catalog.=) :cache_jobid;
-DROP FUNCTION public.pg_cron_wait_for_job(bigint);
 DROP FUNCTION public.pg_cron_wait_for_command(bigint, text);
+
+-- Verify that background workers mode works
+--start_ignore
+\! gpconfig -c cron.use_background_workers -v 'on' --coordinatoronly --skipvalidation
+\! gpstop -u
+--end_ignore
+
+SELECT cron.schedule('1 seconds', 'SELECT 1') AS worker_jobid \gset
+SELECT public.pg_cron_wait_for_job(:worker_jobid);
+SELECT cron.unschedule(:worker_jobid);
+
+DROP FUNCTION public.pg_cron_wait_for_job(bigint);
+--start_ignore
+\! gpconfig -c cron.use_background_workers -v 'off' --coordinatoronly --skipvalidation
+\! gpstop -u
+--end_ignore
 
 -- cleaning
 DROP EXTENSION pg_cron;

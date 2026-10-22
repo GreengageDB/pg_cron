@@ -25,7 +25,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
       - name: Build and install
-        shell: bash
         run: bash $GITHUB_WORKSPACE/ci/install.bash
         working-directory: /home/gpadmin
       - name: Tests

@@ -25,10 +25,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
       - name: Build and install
-        run: ci/install.bash
+        run: $GITHUB_WORKSPACE/ci/install.bash
         working-directory: /home/gpadmin
       - name: Tests
-        run: su gpadmin -c 'ci/test.bash'
+        run: su gpadmin -c '$GITHUB_WORKSPACE/ci/test.bash'
       - name: Collect logs
         uses: greengagedb/greengage-ci/.github/actions/collect-logs@v55
         with:

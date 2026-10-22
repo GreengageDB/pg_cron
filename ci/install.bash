@@ -12,7 +12,6 @@ source gpdb_src/gpAux/gpdemo/gpdemo-env.sh
 pushd "$(dirname "$0")/.."
   make
   make install
-  chown -R gpadmin:gpadmin . /usr/local/greengage-db-devel
 popd
 
 mkdir -p /logs

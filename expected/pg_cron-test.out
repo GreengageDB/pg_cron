@@ -422,6 +422,12 @@ SELECT public.pg_cron_wait_for_job(:worker_jobid);
  succeeded
 (1 row)
 
+SELECT DISTINCT return_message FROM cron.job_run_details WHERE jobid = :worker_jobid;
+ return_message 
+----------------
+ SELECT 1
+(1 row)
+
 SELECT cron.unschedule(:worker_jobid);
  unschedule 
 ------------

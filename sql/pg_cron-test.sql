@@ -254,6 +254,7 @@ DROP FUNCTION public.pg_cron_wait_for_command(bigint, text);
 
 SELECT cron.schedule('1 seconds', 'SELECT 1') AS worker_jobid \gset
 SELECT public.pg_cron_wait_for_job(:worker_jobid);
+SELECT DISTINCT return_message FROM cron.job_run_details WHERE jobid = :worker_jobid;
 SELECT cron.unschedule(:worker_jobid);
 
 DROP FUNCTION public.pg_cron_wait_for_job(bigint);

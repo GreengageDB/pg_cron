@@ -1,0 +1,4 @@
+-- start_matchignore
+m/^NOTICE:.*resource queue required -- using default resource queue ".*"/
+m/^CONTEXT:  SQL statement "CREATE (ROLE|USER) /
+-- end_matchignore

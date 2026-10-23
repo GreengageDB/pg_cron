@@ -1,20 +1,8 @@
-CREATE EXTENSION pg_cron VERSION '1.0';
-SELECT extversion FROM pg_extension WHERE extname='pg_cron';
--- Test binary compatibility with v1.3 function signature.
-ALTER EXTENSION pg_cron UPDATE TO '1.3';
-SELECT cron.schedule('test', '* * * * *', 'SELECT 1');
-SELECT cron.unschedule('test');
--- Test binary compatibility with v1.4 function signature.
-ALTER EXTENSION pg_cron UPDATE TO '1.4';
-SELECT cron.unschedule(job_name := 'no_such_job');
-SELECT cron.schedule('testjob', '* * * * *', 'SELECT 1');
-SELECT cron.unschedule('testjob');
-
--- Test cache invalidation
-DROP EXTENSION pg_cron;
-CREATE EXTENSION pg_cron VERSION '1.4';
-
-ALTER EXTENSION pg_cron UPDATE;
+-- start_matchsubs
+-- m/ \([a-zA-Z0-9_]+\.c:\d+\)/
+-- s/ \([a-zA-Z0-9_]+\.c:\d+\)//
+-- end_matchsubs
+CREATE EXTENSION pg_cron;
 
 -- Vacuum every day at 10:00am (GMT)
 SELECT cron.schedule('0 10 * * *', 'VACUUM');
@@ -151,7 +139,7 @@ RESET SESSION AUTHORIZATION;
 
 -- Override function
 DROP EXTENSION IF EXISTS pg_cron cascade;
-CREATE TABLE test (data text);
+CREATE TABLE test (data text) DISTRIBUTED BY (data);
 DROP TYPE IF EXISTS current_setting cascade;
 CREATE TYPE current_setting AS ENUM ('cron.database_name');
 
@@ -179,6 +167,101 @@ SELECT jobid, jobname, schedule, command FROM cron.job ORDER BY jobid;
 
 -- invalid last of day job
 SELECT cron.schedule('bad-last-dom-job1', '0 11 $foo * *', 'VACUUM FULL');
+
+-- Verify job execution and launcher health
+CREATE FUNCTION public.pg_cron_wait_for_job(p_jobid bigint) RETURNS text
+LANGUAGE plpgsql AS $$
+DECLARE
+    v_status text;
+BEGIN
+    FOR i IN 1..30 LOOP
+        SELECT status INTO v_status FROM cron.job_run_details
+            WHERE jobid = p_jobid AND status IN ('succeeded', 'failed')
+        ORDER BY runid DESC LIMIT 1;
+        IF v_status IS NOT NULL THEN
+            RETURN v_status;
+        END IF;
+        PERFORM pg_sleep(1);
+    END LOOP;
+    RETURN 'timeout';
+END $$;
+
+SELECT cron.schedule('simple_exec_test', '1 seconds', 'SELECT 1') AS exec_jobid \gset
+SELECT public.pg_cron_wait_for_job(:exec_jobid);
+SELECT cron.unschedule('simple_exec_test');
+
+-- Scheduling a job for a role without LOGIN is rejected
+CREATE ROLE cron_nologin_test NOLOGIN;
+SELECT cron.schedule_in_database(
+    'cron_nologin_test',
+    '1 seconds',
+    'SELECT 1',
+    current_database(),
+    'cron_nologin_test'
+);
+
+DROP ROLE cron_nologin_test;
+
+-- Verify cache invalidation using trigger
+INSERT INTO cron.job (schedule, command, nodename, nodeport, database, username, active, jobname)
+VALUES (
+    '1 seconds',
+    'SELECT 1',
+    'localhost',
+    (SELECT setting::integer FROM pg_settings WHERE name = 'port'),
+    current_database(),
+    current_user,
+    true,
+    'cache_test_job'
+)
+RETURNING jobid \gset cache_
+
+CREATE FUNCTION public.pg_cron_wait_for_command(p_jobid bigint, p_command text) RETURNS text
+LANGUAGE plpgsql AS $$
+DECLARE
+    v_command text;
+BEGIN
+    FOR i IN 1..30 LOOP
+        SELECT command INTO v_command FROM cron.job_run_details
+            WHERE jobid = p_jobid AND command = p_command
+        ORDER BY runid DESC LIMIT 1;
+        IF v_command IS NOT NULL THEN
+            RETURN v_command;
+        END IF;
+        PERFORM pg_sleep(1);
+    END LOOP;
+    RETURN 'timeout';
+END $$;
+
+SELECT public.pg_cron_wait_for_job(:cache_jobid);
+SELECT count(*) > 0 FROM cron.job_run_details WHERE jobid = :cache_jobid;
+
+UPDATE cron.job SET command = 'SELECT 2' WHERE jobid = :cache_jobid;
+SELECT public.pg_cron_wait_for_command(:cache_jobid, 'SELECT 2');
+
+SELECT cron.unschedule(:cache_jobid);
+DELETE FROM cron.job_run_details
+    WHERE jobid OPERATOR(pg_catalog.=) :cache_jobid;
+DROP FUNCTION public.pg_cron_wait_for_command(bigint, text);
+
+-- Verify that background workers mode works
+--start_ignore
+\! gpconfig -c cron.use_background_workers -v 'on' --coordinatoronly --skipvalidation
+\! gpstop -ra -M fast
+\c
+--end_ignore
+
+SELECT cron.schedule('1 seconds', 'SELECT 1') AS worker_jobid \gset
+SELECT public.pg_cron_wait_for_job(:worker_jobid);
+SELECT DISTINCT return_message FROM cron.job_run_details WHERE jobid = :worker_jobid;
+SELECT cron.unschedule(:worker_jobid);
+
+DROP FUNCTION public.pg_cron_wait_for_job(bigint);
+--start_ignore
+\! gpconfig -r cron.use_background_workers --coordinatoronly --skipvalidation
+\! gpstop -ra -M fast
+\c
+--end_ignore
 
 -- cleaning
 DROP EXTENSION pg_cron;

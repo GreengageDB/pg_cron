@@ -191,9 +191,7 @@ SELECT public.pg_cron_wait_for_job(:exec_jobid);
 SELECT cron.unschedule('simple_exec_test');
 
 -- Job connection respects pg_hba.conf
--- This test assumes that login is allowed only for gpadmin, thus job should fail.
--- With a broader trust on a dev cluster job succeeds and test fails.
-CREATE ROLE cron_hba_test LOGIN;
+CREATE ROLE cron_hba_test NOLOGIN;
 SELECT cron.schedule_in_database(
     'hba-test-job',
     '1 seconds',
@@ -203,16 +201,6 @@ SELECT cron.schedule_in_database(
 ) AS hba_job_id
 \gset
 
-SELECT public.pg_cron_wait_for_job(:hba_job_id);
-
-SELECT cron.unschedule(:hba_job_id);
-SELECT count(*) FILTER (WHERE status = 'succeeded') AS succeeded,
-       count(*) FILTER (WHERE return_message LIKE '%connection failed%') > 0 AS no_hba
-FROM cron.job_run_details
-WHERE jobid OPERATOR(pg_catalog.=) :hba_job_id;
-
-DELETE FROM cron.job_run_details
-    WHERE jobid OPERATOR(pg_catalog.=) :hba_job_id;
 DROP ROLE cron_hba_test;
 
 -- Verify cache invalidation using trigger

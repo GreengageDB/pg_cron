@@ -5,8 +5,7 @@ EXTENSION = pg_cron
 DATA_built = $(EXTENSION)--1.0.sql
 DATA = $(wildcard $(EXTENSION)--*--*.sql)
 
-GPDB_SRC ?= /home/gpadmin/gpdb_src
-override REGRESS_OPTS = --init-file=$(GPDB_SRC)/src/test/regress/init_file
+REGRESS_OPTS = --init-file=init_file
 REGRESS = setup pg_cron-test teardown
 
 # compilation configuration

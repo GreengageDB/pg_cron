@@ -411,7 +411,7 @@ BEGIN
 END $$;
 SELECT public.pg_cron_wait_for_job(:cache_jobid);
  pg_cron_wait_for_job 
-------------
+----------------------
  succeeded
 (1 row)
 
@@ -424,7 +424,7 @@ SELECT count(*) > 0 FROM cron.job_run_details WHERE jobid = :cache_jobid;
 UPDATE cron.job SET command = 'SELECT 2' WHERE jobid = :cache_jobid;
 SELECT public.pg_cron_wait_for_command(:cache_jobid, 'SELECT 2');
  pg_cron_wait_for_command 
-------------
+--------------------------
  SELECT 2
 (1 row)
 
@@ -441,7 +441,7 @@ DROP FUNCTION public.pg_cron_wait_for_command(bigint, text);
 SELECT cron.schedule('1 seconds', 'SELECT 1') AS worker_jobid \gset
 SELECT public.pg_cron_wait_for_job(:worker_jobid);
  pg_cron_wait_for_job 
-------------
+----------------------
  succeeded
 (1 row)
 

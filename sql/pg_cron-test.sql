@@ -260,7 +260,8 @@ DROP FUNCTION public.pg_cron_wait_for_command(bigint, text);
 -- Verify that background workers mode works
 --start_ignore
 \! gpconfig -c cron.use_background_workers -v 'on' --coordinatoronly --skipvalidation
-\! gpstop -u
+\! gpstop -ra -M fast
+\c
 --end_ignore
 
 SELECT cron.schedule('1 seconds', 'SELECT 1') AS worker_jobid \gset
@@ -270,7 +271,8 @@ SELECT cron.unschedule(:worker_jobid);
 DROP FUNCTION public.pg_cron_wait_for_job(bigint);
 --start_ignore
 \! gpconfig -c cron.use_background_workers -v 'off' --coordinatoronly --skipvalidation
-\! gpstop -u
+\! gpstop -ra -M fast
+\c
 --end_ignore
 
 -- cleaning

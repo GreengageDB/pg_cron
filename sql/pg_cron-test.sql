@@ -258,7 +258,7 @@ SELECT cron.unschedule(:worker_jobid);
 
 DROP FUNCTION public.pg_cron_wait_for_job(bigint);
 --start_ignore
-\! gpconfig -c cron.use_background_workers -v 'off' --coordinatoronly --skipvalidation
+\! gpconfig -r cron.use_background_workers --coordinatoronly --skipvalidation
 \! gpstop -ra -M fast
 \c
 --end_ignore

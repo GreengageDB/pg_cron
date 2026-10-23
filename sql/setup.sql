@@ -3,4 +3,4 @@
 \! gpconfig -c shared_preload_libraries -v "$(psql -At -c "SELECT array_to_string(array_append(string_to_array(current_setting('shared_preload_libraries'), ','), 'pg_cron'), ',')" postgres)" --coordinatoronly
 \! gpconfig -c cron.database_name -v 'regression' --coordinatoronly --skipvalidation
 \! gpstop -raq -M fast
---end-ignore
+--end_ignore

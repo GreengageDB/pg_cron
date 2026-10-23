@@ -190,7 +190,7 @@ SELECT cron.schedule('simple_exec_test', '1 seconds', 'SELECT 1') AS exec_jobid 
 SELECT public.pg_cron_wait_for_job(:exec_jobid);
 SELECT cron.unschedule('simple_exec_test');
 
--- Job connection respects pg_hba.conf
+-- Scheduling a job for a role without LOGIN is rejected
 CREATE ROLE cron_hba_test NOLOGIN;
 SELECT cron.schedule_in_database(
     'hba-test-job',

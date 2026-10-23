@@ -191,17 +191,16 @@ SELECT public.pg_cron_wait_for_job(:exec_jobid);
 SELECT cron.unschedule('simple_exec_test');
 
 -- Scheduling a job for a role without LOGIN is rejected
-CREATE ROLE cron_hba_test NOLOGIN;
+CREATE ROLE cron_nologin_test NOLOGIN;
 SELECT cron.schedule_in_database(
-    'hba-test-job',
+    'cron_nologin_test',
     '1 seconds',
     'SELECT 1',
     current_database(),
-    'cron_hba_test'
-) AS hba_job_id
-\gset
+    'cron_nologin_test'
+);
 
-DROP ROLE cron_hba_test;
+DROP ROLE cron_nologin_test;
 
 -- Verify cache invalidation using trigger
 INSERT INTO cron.job (schedule, command, nodename, nodeport, database, username, active, jobname)

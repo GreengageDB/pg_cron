@@ -5,8 +5,8 @@ EXTENSION = pg_cron
 DATA_built = $(EXTENSION)--1.0.sql
 DATA = $(wildcard $(EXTENSION)--*--*.sql)
 
-REGRESS_OPTS =--temp-config=./pg_cron.conf --temp-instance=./tmp_check
-REGRESS = pg_cron-test 
+REGRESS_OPTS = --init-file=init_file
+REGRESS = setup pg_cron-test teardown
 
 # compilation configuration
 MODULE_big = $(EXTENSION)
@@ -19,7 +19,7 @@ endif
 ifeq ($(shell uname -s),SunOS)
     PG_CPPFLAGS += -Wno-sign-compare -D__EXTENSIONS__
 endif
-SHLIB_LINK = $(libpq)
+SHLIB_LINK_INTERNAL = $(libpq)
 EXTRA_CLEAN += $(addprefix src/,*.gcno *.gcda) # clean up after profiling runs
 
 PG_CONFIG ?= pg_config
